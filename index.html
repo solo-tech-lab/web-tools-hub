@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Webツール集</title>
+  <meta name="description" content="自分用に作った便利なWebツールをまとめたサイトです。" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="site-wrapper">
+    <header class="site-header">
+      <div class="container">
+        <p class="hero-eyebrow">Simple Web Tools</p>
+        <h1 class="site-title">Webツール集</h1>
+        <p class="site-description">
+          自分用に作ったWebツールをまとめたサイトです。<br />
+          今後も少しずつツールを追加していく予定です。
+        </p>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <section class="tools-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">ツール一覧</h2>
+            <p class="section-description">
+              現在はJSON整形ツールを公開中です。
+            </p>
+          </div>
+
+          <div class="tool-grid">
+            <article class="tool-card">
+              <div class="tool-card-body">
+                <p class="tool-tag">JSON / 開発</p>
+                <h3 class="tool-title">JSON整形ツール</h3>
+                <p class="tool-text">
+                  JSON文字列を見やすく整形して確認できます。<br />
+                  不正なJSONのエラーチェックにも使えます。
+                </p>
+              </div>
+              <div class="tool-card-footer">
+                <a class="tool-link-button" href="tools/json-formatter.html">ツールを開く</a>
+              </div>
+            </article>
+
+            <article class="tool-card is-disabled">
+              <div class="tool-card-body">
+                <p class="tool-tag">Coming Soon</p>
+                <h3 class="tool-title">追加予定ツール</h3>
+                <p class="tool-text">
+                  今後、文字数カウントや変換系などの便利ツールを追加予定です。
+                </p>
+              </div>
+              <div class="tool-card-footer">
+                <button class="tool-link-button" type="button" disabled>準備中</button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="footer-text">Built with HTML / CSS / JavaScript</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
