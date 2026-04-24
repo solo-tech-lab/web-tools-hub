@@ -4,13 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Webツール集</title>
-  <meta name="description" content="自分用に作った便利なWebツールをまとめたサイトです。" />
+  <meta name="description" content="自分用に作ったWebツールをまとめたサイトです。" />
+  <script>
+    (function () {
+      var key = "web-tools-hub-theme";
+      var savedTheme = localStorage.getItem(key);
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="site-wrapper">
     <header class="site-header">
       <div class="container">
+        <div class="header-top-row">
+          <div class="header-top-spacer" aria-hidden="true"></div>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-label="ライト/ダークモードを切り替える"
+            aria-pressed="false"
+          >
+            <span class="theme-toggle-text">Light</span>
+            <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+            <span class="theme-toggle-text">Dark</span>
+          </button>
+        </div>
         <p class="hero-eyebrow">Simple Web Tools</p>
         <h1 class="site-title">Webツール集</h1>
         <p class="site-description">
@@ -26,7 +50,7 @@
           <div class="section-header">
             <h2 class="section-title">ツール一覧</h2>
             <p class="section-description">
-              現在はJSON整形ツールを公開中です。
+              現在はJSON整形ツールと文字数カウントを公開中です。
             </p>
           </div>
 
@@ -45,16 +69,17 @@
               </div>
             </article>
 
-            <article class="tool-card is-disabled">
+            <article class="tool-card">
               <div class="tool-card-body">
-                <p class="tool-tag">Coming Soon</p>
-                <h3 class="tool-title">追加予定ツール</h3>
+                <p class="tool-tag">文章 / SNS</p>
+                <h3 class="tool-title">文字数カウント</h3>
                 <p class="tool-text">
-                  今後、文字数カウントや変換系などの便利ツールを追加予定です。
+                  文章の文字数・行数をリアルタイムで確認できます。<br />
+                  文字数制限の残りや超過もすぐにチェックできます。
                 </p>
               </div>
               <div class="tool-card-footer">
-                <button class="tool-link-button" type="button" disabled>準備中</button>
+                <a class="tool-link-button" href="tools/char-counter.html">ツールを開く</a>
               </div>
             </article>
           </div>
@@ -69,6 +94,6 @@
     </footer>
   </div>
 
-  <script src="js/main.js"></script>
+  <script src="js/theme-toggle.js"></script>
 </body>
 </html>

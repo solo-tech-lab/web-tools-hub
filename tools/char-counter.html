@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>文字数カウント | Webツール集</title>
+  <meta name="description" content="入力した文章の文字数・行数をリアルタイムで確認できる文字数カウントツールです。" />
+  <script>
+    (function () {
+      var key = "web-tools-hub-theme";
+      var savedTheme = localStorage.getItem(key);
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="site-wrapper">
+    <header class="tool-page-header">
+      <div class="container">
+        <div class="header-top-row">
+          <a class="back-link" href="../index.html">← トップへ戻る</a>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-label="ライト/ダークモードを切り替える"
+            aria-pressed="false"
+          >
+            <span class="theme-toggle-text">Light</span>
+            <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+            <span class="theme-toggle-text">Dark</span>
+          </button>
+        </div>
+        <p class="hero-eyebrow">Character Counter</p>
+        <h1 class="page-title">文字数カウント</h1>
+        <p class="page-description">
+          入力した文章の文字数や行数をリアルタイムで確認できます。<br />
+          文字数制限を設定して、残り文字数や超過文字数もチェックできます。
+        </p>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <section class="formatter-section">
+        <div class="container">
+          <section class="panel char-counter-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">集計結果</h2>
+            </div>
+            <div class="panel-body">
+              <div class="counter-grid">
+                <article class="counter-item counter-item--primary">
+                  <p class="counter-label">文字数</p>
+                  <p id="charCount" class="counter-value">0</p>
+                </article>
+                <article class="counter-item">
+                  <p class="counter-label">全角文字数</p>
+                  <p id="fullWidthCount" class="counter-value">0</p>
+                </article>
+                <article class="counter-item">
+                  <p class="counter-label">半角文字数</p>
+                  <p id="halfWidthCount" class="counter-value">0</p>
+                </article>
+                <article class="counter-item">
+                  <p class="counter-label">改行を除いた文字数</p>
+                  <p id="noNewlineCount" class="counter-value">0</p>
+                </article>
+                <article class="counter-item">
+                  <p class="counter-label">行数</p>
+                  <p id="lineCount" class="counter-value">0</p>
+                </article>
+                <article class="counter-item">
+                  <p class="counter-label">空白数</p>
+                  <p id="whitespaceCount" class="counter-value">0</p>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel char-counter-panel">
+            <div class="panel-header panel-header-with-actions">
+              <h2 class="panel-title">入力テキスト</h2>
+              <div class="panel-header-actions">
+                <button id="whitespaceHighlightToggle" class="secondary-button panel-action-button panel-action-toggle" type="button" aria-pressed="false">空白ハイライト OFF</button>
+                <button id="lineCountToggle" class="secondary-button panel-action-button panel-action-toggle" type="button" aria-pressed="false">行文字数 OFF</button>
+                <button id="undoButton" class="secondary-button panel-action-button" type="button" disabled>↶ Undo</button>
+                <button id="redoButton" class="secondary-button panel-action-button" type="button" disabled>↷ Redo</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="text-tab-toolbar" aria-label="入力テキストタブ">
+                <div class="text-tab-scroll">
+                  <ul id="textTabList" class="text-tab-list"></ul>
+                </div>
+                <button id="addTabButton" class="secondary-button text-tab-add" type="button">＋ タブ追加</button>
+              </div>
+              <p id="tabLimitNotice" class="tab-limit-note" hidden>タブは最大5件まで追加できます。</p>
+              <textarea
+                id="textInput"
+                class="code-textarea plain-textarea"
+                spellcheck="false"
+                placeholder="ここに文字数をカウントしたい文章を入力してください"
+              ></textarea>
+              <section id="whitespacePreview" class="whitespace-preview" hidden aria-live="polite">
+                <p class="whitespace-preview-label">空白可視化プレビュー</p>
+                <pre id="whitespacePreviewContent" class="whitespace-preview-content"></pre>
+              </section>
+              <section id="lineCountPanel" class="line-count-panel" hidden aria-live="polite">
+                <p class="line-count-panel-label">行ごとの文字数</p>
+                <div class="line-count-table-wrap">
+                  <table class="line-count-table">
+                    <colgroup>
+                      <col class="line-count-col line-count-col-number" />
+                      <col class="line-count-col line-count-col-text" />
+                      <col class="line-count-col line-count-col-count" />
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th scope="col" class="line-count-head-number">行番号</th>
+                        <th scope="col" class="line-count-head-text">行テキスト</th>
+                        <th scope="col" class="line-count-head-count">文字数</th>
+                      </tr>
+                    </thead>
+                    <tbody id="lineCountTableBody"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <div class="action-buttons char-counter-actions">
+            <div class="char-counter-action-row" role="group" aria-label="基本操作">
+              <button id="copyButton" class="secondary-button button--copy" type="button">コピー</button>
+              <button id="clearButton" class="secondary-button" type="button">クリア</button>
+              <button id="sampleButton" class="secondary-button button--sample" type="button">サンプル入力</button>
+            </div>
+            <div class="char-counter-action-row char-counter-action-row--sub" role="group" aria-label="整形操作">
+              <button id="removeSpacesButton" class="secondary-button" type="button">空白削除</button>
+              <button id="removeNewlinesButton" class="secondary-button" type="button">改行削除</button>
+              <button id="removeSpacesNewlinesButton" class="secondary-button" type="button">空白＋改行削除</button>
+            </div>
+          </div>
+
+          <div id="messageArea" class="message-area" aria-live="polite"></div>
+
+          <section class="panel char-counter-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">文字数制限シミュレーター</h2>
+            </div>
+            <div class="panel-body">
+              <p id="countModeHint" class="count-mode-hint">判定基準: 通常文字数</p>
+              <div id="limitStatus" class="limit-status info">制限文字数を入力すると判定を表示します。</div>
+              <div class="preset-buttons" role="group" aria-label="制限文字数プリセット">
+                <button class="secondary-button preset-button" type="button" data-limit="100">100</button>
+                <button class="secondary-button preset-button" type="button" data-limit="140">140</button>
+                <button class="secondary-button preset-button" type="button" data-limit="200">200</button>
+                <button class="secondary-button preset-button" type="button" data-limit="300">300</button>
+                <button class="secondary-button preset-button" type="button" data-limit="500">500</button>
+              </div>
+              <div class="limit-controls">
+                <label class="limit-label" for="limitInput">制限文字数</label>
+                <input id="limitInput" class="limit-input" type="number" inputmode="numeric" min="1" placeholder="例: 140" />
+              </div>
+              <div class="count-mode" role="radiogroup" aria-label="カウント基準">
+                <p class="count-mode-label">カウント基準</p>
+                <div class="count-mode-segment">
+                  <button class="count-mode-button is-active" type="button" role="radio" aria-checked="true" data-count-mode="normal">通常文字数</button>
+                  <button class="count-mode-button" type="button" role="radio" aria-checked="false" data-count-mode="noSpace">空白除外</button>
+                  <button class="count-mode-button" type="button" role="radio" aria-checked="false" data-count-mode="noNewline">改行除外</button>
+                  <button class="count-mode-button" type="button" role="radio" aria-checked="false" data-count-mode="noSpaceNewline">空白＋改行除外</button>
+                </div>
+              </div>
+              <section id="overflowPreview" class="overflow-preview" hidden aria-live="polite">
+                <div class="overflow-preview-header">
+                  <p class="overflow-preview-label">超過プレビュー</p>
+                  <p id="overflowPreviewHint" class="overflow-preview-hint"></p>
+                </div>
+                <pre id="overflowPreviewContent" class="overflow-preview-content"></pre>
+              </section>
+            </div>
+          </section>
+
+          <section class="tips-card">
+            <h2 class="tips-title">使い方</h2>
+            <ul class="tips-list">
+              <li>入力欄に文章を貼り付けると、文字数・行数がリアルタイムで更新されます。</li>
+              <li>「文字数制限シミュレーター」で制限値を設定すると、残り文字数や超過文字数を確認できます。</li>
+              <li>「空白ハイライト」をONにすると、空白や改行の位置を可視化できます。</li>
+              <li>「行文字数」をONにすると、行ごとの文字数を表で確認できます。</li>
+            </ul>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/theme-toggle.js"></script>
+  <script src="../js/char-counter.js"></script>
+</body>
+</html>

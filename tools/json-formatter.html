@@ -5,13 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JSON整形ツール | Webツール集</title>
   <meta name="description" content="JSON文字列を整形して見やすく表示するツールです。" />
+  <script>
+    (function () {
+      var key = "web-tools-hub-theme";
+      var savedTheme = localStorage.getItem(key);
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
   <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
   <div class="site-wrapper">
     <header class="tool-page-header">
       <div class="container">
-        <a class="back-link" href="../index.html">← トップへ戻る</a>
+        <div class="header-top-row">
+          <a class="back-link" href="../index.html">← トップへ戻る</a>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-label="ライト/ダークモードを切り替える"
+            aria-pressed="false"
+          >
+            <span class="theme-toggle-text">Light</span>
+            <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+            <span class="theme-toggle-text">Dark</span>
+          </button>
+        </div>
         <p class="hero-eyebrow">JSON Formatter</p>
         <h1 class="page-title">JSON整形ツール</h1>
         <p class="page-description">
@@ -71,6 +94,7 @@
     </main>
   </div>
 
+  <script src="../js/theme-toggle.js"></script>
   <script src="../js/json-formatter.js"></script>
 </body>
 </html>
