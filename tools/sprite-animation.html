@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>スプライトアニメ確認ツール | Webツール集</title>
+  <meta
+    name="description"
+    content="スプライトシート画像のアニメーションをブラウザ上で確認できるツールです。"
+  />
+  <script>
+    (function () {
+      var key = "web-tools-hub-theme";
+      var savedTheme = localStorage.getItem(key);
+      var prefersDark =
+        window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme =
+        savedTheme === "dark" || savedTheme === "light"
+          ? savedTheme
+          : prefersDark
+            ? "dark"
+            : "light";
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="site-wrapper">
+    <header class="tool-page-header">
+      <div class="container">
+        <div class="header-top-row">
+          <a class="back-link" href="../index.html">← トップへ戻る</a>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-label="ライト/ダークモードを切り替える"
+            aria-pressed="false"
+          >
+            <span class="theme-toggle-text">Light</span>
+            <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+            <span class="theme-toggle-text">Dark</span>
+          </button>
+        </div>
+        <p class="hero-eyebrow">Sprite Animation</p>
+        <h1 class="page-title">スプライトアニメ確認ツール</h1>
+        <p class="page-description">
+          スプライトシート画像を読み込み、方向別アニメーションやエフェクトを確認できます。
+        </p>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <section class="formatter-section">
+        <div class="container">
+          <div class="sprite-layout">
+            <section class="panel">
+              <div class="panel-header"><h2 class="panel-title">設定</h2></div>
+              <div class="panel-body">
+                <div class="sprite-controls">
+                  <label for="spriteImage">画像アップロード (PNG / JPG / WebP)</label>
+                  <input id="spriteImage" type="file" accept="image/png,image/jpeg,image/webp" />
+
+                  <div class="split-preview-wrap">
+                    <h3 class="split-preview-title">分割プレビュー</h3>
+                    <div class="split-preview-canvas-wrap">
+                      <canvas
+                        id="splitPreviewCanvas"
+                        width="640"
+                        height="360"
+                        aria-label="分割プレビュー"
+                      ></canvas>
+                    </div>
+                  </div>
+
+                  <div class="form-grid">
+                    <div>
+                      <label for="columnsInput">列数</label>
+                      <input id="columnsInput" type="number" min="1" value="4" />
+                    </div>
+                    <div>
+                      <label for="rowsInput">行数</label>
+                      <input id="rowsInput" type="number" min="1" value="1" />
+                    </div>
+                    <div>
+                      <label for="fpsInput">FPS (1-60)</label>
+                      <input id="fpsInput" type="number" min="1" max="60" value="8" />
+                    </div>
+                    <div>
+                      <label for="speedPreset">速度プリセット</label>
+                      <select id="speedPreset">
+                        <option value="8" selected>遅い (8 FPS)</option>
+                        <option value="12">標準 (12 FPS)</option>
+                        <option value="24">速い (24 FPS)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="playbackMode">再生モード</label>
+                    <select id="playbackMode">
+                      <option value="all">全フレーム再生</option>
+                      <option value="row">行単位再生</option>
+                      <option value="range">範囲指定再生</option>
+                    </select>
+                  </div>
+
+                  <div id="rowModeFields" class="mode-fields is-hidden">
+                    <label for="rowInput">再生する行番号 (1始まり)</label>
+                    <input id="rowInput" type="number" min="1" value="1" />
+                  </div>
+
+                  <div id="rangeModeFields" class="mode-fields is-hidden">
+                    <div class="form-grid">
+                      <div>
+                        <label for="startFrameInput">開始フレーム (1始まり)</label>
+                        <input id="startFrameInput" type="number" min="1" value="1" />
+                      </div>
+                      <div>
+                        <label for="endFrameInput">終了フレーム (1始まり)</label>
+                        <input id="endFrameInput" type="number" min="1" value="1" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="bgSelect">背景</label>
+                    <select id="bgSelect">
+                      <option value="checker">透明チェック</option>
+                      <option value="white">白</option>
+                      <option value="black">黒</option>
+                      <option value="gray">グレー</option>
+                    </select>
+                  </div>
+
+                  <div class="sample-data-wrap">
+                    <h3 class="split-preview-title">サンプルデータ</h3>
+                    <p class="split-preview-meta">
+                      画像を用意する前に、再生設定サンプルを読み込んで挙動を確認できます。
+                    </p>
+                    <div>
+                      <label for="sampleDataSelect">サンプル選択</label>
+                      <select id="sampleDataSelect">
+                        <option value="sample01" selected>サンプル０１</option>
+                        <option value="sample02">サンプル０２</option>
+                        <option value="sample03">サンプル０３</option>
+                      </select>
+                    </div>
+                    <div class="sprite-buttons">
+                      <button id="applySampleDataButton" class="secondary-button" type="button">
+                        サンプル設定を反映
+                      </button>
+                      <button id="copySampleDataButton" class="secondary-button" type="button">
+                        JSONをコピー
+                      </button>
+                    </div>
+                    <label for="sampleDataPreview">サンプルJSON</label>
+                    <textarea
+                      id="sampleDataPreview"
+                      class="sample-data-preview"
+                      rows="10"
+                      readonly
+                    ></textarea>
+                  </div>
+
+                  <div class="transparency-helper-wrap">
+                    <h3 class="split-preview-title">背景透過補助</h3>
+                    <p class="split-preview-meta">
+                      この機能は簡易的な背景透過補助です。背景色に近いキャラクター部分や影も透明になる場合があります。元画像は保持されるため、失敗した場合は元画像に戻せます。
+                    </p>
+                    <div>
+                      <label for="transparencyMode">背景透過補助</label>
+                      <select id="transparencyMode">
+                        <option value="off">OFF</option>
+                        <option value="white">白背景を透過</option>
+                        <option value="checker">チェック柄風背景を透過</option>
+                        <option value="target">指定色を透過</option>
+                      </select>
+                    </div>
+                    <div class="form-grid">
+                      <div>
+                        <label for="thresholdInput"
+                          >しきい値: <span id="thresholdValue">30</span></label
+                        >
+                        <input id="thresholdInput" type="range" min="0" max="100" value="30" />
+                      </div>
+                      <div id="targetColorWrap" class="is-hidden">
+                        <label for="targetColorInput">指定色</label>
+                        <input id="targetColorInput" type="color" value="#ffffff" />
+                      </div>
+                    </div>
+                    <p id="checkerWarning" class="transparency-warning is-hidden">
+                      影や明るい部分が透過される場合があります
+                    </p>
+                    <div class="sprite-buttons">
+                      <button id="applyTransparencyButton" class="secondary-button" type="button">
+                        透過処理を適用
+                      </button>
+                      <button id="restoreImageButton" class="secondary-button" type="button">
+                        元画像に戻す
+                      </button>
+                      <button
+                        id="downloadTransparentButton"
+                        class="secondary-button"
+                        type="button"
+                        disabled
+                      >
+                        透過PNGを保存
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="spriteMessage" class="message-area" aria-live="polite"></div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header"><h2 class="panel-title">プレビュー</h2></div>
+              <div class="panel-body">
+                <div id="canvasWrap" class="sprite-canvas-wrap checkerboard">
+                  <canvas
+                    id="spriteCanvas"
+                    width="320"
+                    height="320"
+                    aria-label="スプライトプレビュー"
+                  ></canvas>
+                </div>
+                <div class="sprite-buttons playback-buttons">
+                  <button id="playButton" class="primary-button play-action-button" type="button">
+                    <span class="play-action-icon" aria-hidden="true"></span><span>再生</span>
+                  </button>
+                  <button id="stopButton" class="secondary-button" type="button">停止</button>
+                  <button id="prevButton" class="secondary-button" type="button">1コマ戻る</button>
+                  <button id="nextButton" class="secondary-button" type="button">1コマ進む</button>
+                  <button id="resetButton" class="secondary-button" type="button">先頭へ戻る</button>
+                  <label class="loop-toggle"
+                    ><input id="loopToggle" type="checkbox" checked /> ループ再生</label
+                  >
+                </div>
+                <dl class="sprite-info" id="spriteInfo"></dl>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/theme-toggle.js"></script>
+  <script src="../js/sprite-animation.js"></script>
+</body>
+</html>
