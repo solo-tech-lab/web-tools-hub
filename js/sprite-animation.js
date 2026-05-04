@@ -25,21 +25,33 @@ const modeLabel = { all: "全フレーム再生", row: "行単位再生", range:
 let sampleDataMap = {};
 
 const defaultSampleDataMap = {
-  sample01: { name: "sample01", columns: 4, rows: 4, fps: 12, playbackMode: "all", row: 1, rangeStart: 1, rangeEnd: 16, loop: true, background: "checker", imagePath: "../assets/samples/sprite-animation/sample_01.png", notes: "サンプル０１" },
-  "slash-row": { name: "Slash Row", columns: 6, rows: 2, fps: 16, playbackMode: "row", row: 2, rangeStart: 1, rangeEnd: 12, loop: true, background: "gray", notes: "2行目のみを高速再生して攻撃モーションを確認。" },
-  "jump-range": { name: "Jump Range", columns: 5, rows: 3, fps: 10, playbackMode: "range", row: 1, rangeStart: 6, rangeEnd: 12, loop: false, background: "white", notes: "ジャンプ開始〜着地までの範囲だけを再生。" }
+  "sample01": { "name": "sample01", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "row", "row": 1, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../assets/samples/sprite-animation/sample_01.png", "notes": "サンプル０１" },
+  "sample02": { "name": "sample02", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "all", "row": 2, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../assets/samples/sprite-animation/sample_02.png", "notes": "サンプル０２" },
+  "sample03": { "name": "sample03", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "all", "row": 1, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../assets/samples/sprite-animation/sample_03.png", "notes": "サンプル０３" }
 };
 
+const SAMPLE_DATA_URL = "../assets/samples/sprite-animation/sample-data.json";
 
 async function loadSampleDataMap() {
   try {
-    const response = await fetch("/assets/samples/sprite-animation/sample-data.json");
+    const resolvedUrl = new URL(SAMPLE_DATA_URL, window.location.href).href;
+    console.log("sample-data.json 読み込みURL:", resolvedUrl);
+
+    const response = await fetch(SAMPLE_DATA_URL, { cache: "no-store" });
+    console.log("sample-data.json response:", response.status, response.statusText);
+
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
     const data = await response.json();
-    if (data && typeof data === "object" && Object.keys(data).length) sampleDataMap = data;
-    else sampleDataMap = defaultSampleDataMap;
+
+    if (data && typeof data === "object" && Object.keys(data).length) {
+      sampleDataMap = data;
+    } else {
+      sampleDataMap = defaultSampleDataMap;
+    }
   } catch (error) {
     sampleDataMap = defaultSampleDataMap;
+    console.warn("外部サンプル設定JSONを読み込めませんでした。", error);
     showMessage("info", "外部サンプル設定JSONを読み込めなかったため、内蔵サンプル設定を使用しています。");
   }
 }
