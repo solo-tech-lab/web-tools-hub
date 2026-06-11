@@ -25,12 +25,12 @@ const modeLabel = { all: "全フレーム再生", row: "行単位再生", range:
 let sampleDataMap = {};
 
 const defaultSampleDataMap = {
-  "sample01": { "name": "sample01", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "row", "row": 1, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../assets/samples/sprite-animation/sample_01.png", "notes": "サンプル０１" },
-  "sample02": { "name": "sample02", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "all", "row": 2, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../assets/samples/sprite-animation/sample_02.png", "notes": "サンプル０２" },
-  "sample03": { "name": "sample03", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "all", "row": 1, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../assets/samples/sprite-animation/sample_03.png", "notes": "サンプル０３" }
+  "sample01": { "name": "sample01", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "row", "row": 1, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../../assets/samples/sprite-animation/sample_01.png", "notes": "サンプル０１" },
+  "sample02": { "name": "sample02", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "all", "row": 2, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../../assets/samples/sprite-animation/sample_02.png", "notes": "サンプル０２" },
+  "sample03": { "name": "sample03", "columns": 4, "rows": 4, "fps": 11, "playbackMode": "all", "row": 1, "rangeStart": 1, "rangeEnd": 16, "loop": true, "background": "white", "imagePath": "../../assets/samples/sprite-animation/sample_03.png", "notes": "サンプル０３" }
 };
 
-const SAMPLE_DATA_URL = "../assets/samples/sprite-animation/sample-data.json";
+const SAMPLE_DATA_URL = "../../assets/samples/sprite-animation/sample-data.json";
 
 async function loadSampleDataMap() {
   try {

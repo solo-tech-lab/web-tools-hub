@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unicode変換ツール | Webツール集</title>
+  <meta
+    name="description"
+    content="Unicodeコードポイント、JavaScriptエスケープ、HTML文字参照を文字に変換したり、文字をUnicode形式へ変換できる開発者向けツールです。"
+  />
+  <script>
+    (function () {
+      var key = "web-tools-hub-theme";
+      var savedTheme = localStorage.getItem(key);
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../../css/style.css" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="site-wrapper">
+    <header class="tool-page-header">
+      <div class="container">
+        <div class="header-top-row">
+          <a class="back-link" href="../../index.html">← トップへ戻る</a>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-label="ライト/ダークモードを切り替える"
+            aria-pressed="false"
+          >
+            <span class="theme-toggle-text">Light</span>
+            <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+            <span class="theme-toggle-text">Dark</span>
+          </button>
+        </div>
+        <p class="hero-eyebrow">Unicode Converter</p>
+        <h1 class="page-title">Unicode変換ツール</h1>
+        <p class="page-description">
+          Unicodeコードポイント、JavaScriptエスケープ、HTML文字参照を文字に変換したり、文字をUnicode形式へ変換できる開発者向けツールです。
+        </p>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <section class="formatter-section unicode-converter-section">
+        <div class="container">
+          <section class="panel unicode-converter-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">変換設定</h2>
+            </div>
+            <div class="panel-body">
+              <div class="unicode-converter-controls">
+                <label class="unicode-converter-field">
+                  <span class="unicode-converter-label">変換モード</span>
+                  <select id="unicodeMode" class="unicode-converter-select">
+                    <option value="codeToChar">Unicodeコード → 文字</option>
+                    <option value="charToUnicode">文字 → Unicode</option>
+                    <option value="decodeEscapes">文章内エスケープ解除</option>
+                  </select>
+                </label>
+
+                <label id="unicodeOutputFormatWrap" class="unicode-converter-field">
+                  <span class="unicode-converter-label">出力形式</span>
+                  <select id="unicodeOutputFormat" class="unicode-converter-select"></select>
+                </label>
+              </div>
+
+              <div id="unicodeModeHint" class="unicode-converter-hint">
+                U+3042、3042、\u3042、\u{3042}、&amp;#x3042;、&amp;#12354; などを文字へ変換します。
+              </div>
+            </div>
+          </section>
+
+          <div class="unicode-converter-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2 class="panel-title">入力</h2>
+              </div>
+              <div class="panel-body">
+                <textarea
+                  id="unicodeInput"
+                  class="code-textarea unicode-converter-textarea"
+                  spellcheck="false"
+                  placeholder="例: U+3042 U+3044 U+3046"
+                ></textarea>
+
+                <div class="unicode-converter-samples" role="group" aria-label="サンプル入力">
+                  <button class="secondary-button unicode-converter-sample-button" type="button" data-sample="code">Unicodeコード</button>
+                  <button class="secondary-button unicode-converter-sample-button" type="button" data-sample="escape">JavaScriptエスケープ</button>
+                  <button class="secondary-button unicode-converter-sample-button" type="button" data-sample="yaml">YAML風テキスト</button>
+                  <button class="secondary-button unicode-converter-sample-button" type="button" data-sample="emoji">絵文字</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header unicode-converter-output-header">
+                <h2 class="panel-title">変換結果</h2>
+                <button id="unicodeCopyResult" class="secondary-button unicode-converter-small-button" type="button">変換結果をコピー</button>
+              </div>
+              <div class="panel-body">
+                <textarea
+                  id="unicodeOutput"
+                  class="code-textarea unicode-converter-textarea"
+                  readonly
+                  spellcheck="false"
+                  aria-label="変換結果"
+                ></textarea>
+              </div>
+            </section>
+          </div>
+
+          <div class="action-buttons unicode-converter-actions">
+            <button id="unicodeConvertButton" class="primary-button button--format" type="button">変換</button>
+            <button id="unicodeClearButton" class="secondary-button" type="button">クリア</button>
+            <button id="unicodeCopyTable" class="secondary-button button--copy" type="button">詳細テーブルをコピー</button>
+          </div>
+
+          <div id="unicodeMessageArea" class="message-area" aria-live="polite"></div>
+
+          <section class="panel unicode-converter-detail-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">文字ごとの詳細</h2>
+            </div>
+            <div class="panel-body">
+              <p class="unicode-converter-table-note">「文字 → Unicode」で、各文字のコードポイントとUTF-16表現を確認できます。</p>
+              <div class="unicode-converter-table-wrap">
+                <table class="unicode-converter-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">文字</th>
+                      <th scope="col">Unicodeコードポイント</th>
+                      <th scope="col">16進数</th>
+                      <th scope="col">10進数</th>
+                      <th scope="col">JavaScript UTF-16表現</th>
+                    </tr>
+                  </thead>
+                  <tbody id="unicodeDetailBody">
+                    <tr><td colspan="5" class="unicode-converter-empty">まだ詳細はありません。</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="tips-card">
+            <h2 class="tips-title">使い方</h2>
+            <ul class="tips-list">
+              <li>コードから文字へ変換する場合は、半角スペース・改行・カンマ・タブで複数の値を区切れます。</li>
+              <li>文章内エスケープ解除は、YAMLやJSON風テキストの構造、改行、インデント、GUIDなどを残したままUnicodeエスケープだけを置換します。</li>
+              <li>絵文字などのサロゲートペアは、コードポイント表現とJavaScript UTF-16表現の両方を確認できます。</li>
+            </ul>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../../js/theme-toggle.js"></script>
+  <script src="./main.js"></script>
+</body>
+</html>
