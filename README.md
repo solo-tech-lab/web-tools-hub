@@ -74,13 +74,6 @@ web-tools-hub-dev/
 ├─ index.html
 ├─ LICENSE
 ├─ README.md
-├─ assets/
-│  └─ samples/
-│     └─ sprite-animation/
-│        ├─ sample_01.png
-│        ├─ sample_02.png
-│        ├─ sample_03.png
-│        └─ sample-data.json
 ├─ css/
 │  └─ style.css
 ├─ js/
@@ -97,7 +90,12 @@ web-tools-hub-dev/
    ├─ sprite-animation/
    │  ├─ index.html
    │  ├─ main.js
-   │  └─ style.css
+   │  ├─ style.css
+   │  └─ samples/
+   │     ├─ sample-data.json
+   │     ├─ sample_01.png
+   │     ├─ sample_02.png
+   │     └─ sample_03.png
    └─ unicode-converter/
       ├─ index.html
       ├─ main.js

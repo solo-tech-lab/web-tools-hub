@@ -1,0 +1,44 @@
+{
+  "sample01": {
+    "name": "sample01",
+    "columns": 4,
+    "rows": 4,
+    "fps": 12,
+    "playbackMode": "row",
+    "row": 1,
+    "rangeStart": 1,
+    "rangeEnd": 16,
+    "loop": true,
+    "background": "white",
+    "imagePath": "./samples/sample_01.png",
+    "notes": "サンプル０１"
+  },
+  "sample02": {
+    "name": "sample02",
+    "columns": 4,
+    "rows": 4,
+    "fps": 12,
+    "playbackMode": "all",
+    "row": 2,
+    "rangeStart": 1,
+    "rangeEnd": 16,
+    "loop": true,
+    "background": "white",
+    "imagePath": "./samples/sample_02.png",
+    "notes": "サンプル０２"
+  },
+  "sample03": {
+    "name": "sample03",
+    "columns": 4,
+    "rows": 4,
+    "fps": 12,
+    "playbackMode": "all",
+    "row": 1,
+    "rangeStart": 1,
+    "rangeEnd": 16,
+    "loop": true,
+    "background": "white",
+    "imagePath": "./samples/sample_03.png",
+    "notes": "サンプル０３"
+  }
+}
