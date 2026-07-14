@@ -167,7 +167,7 @@
                     role="img"
                     aria-label="選択色 #000000、rgba(0, 0, 0, 1)"
                   >
-                    <span id="colorPreviewLabel" class="color-preview-label">#000000 / Alpha 1</span>
+                    <span id="colorPreviewLabel" class="color-preview-label">#000000 / Alpha 1.0</span>
                   </div>
                 </div>
 
@@ -175,7 +175,7 @@
                   <div class="rgb-adjustment-header">
                     <div>
                       <h3 id="rgbAdjustmentTitle" class="rgb-adjustment-title">RGBAで色を調整</h3>
-                      <p class="rgb-adjustment-note">RGBと透明度を0～255の範囲で変更できます。</p>
+                      <p class="rgb-adjustment-note">RGBは0～255、Alphaは0.0～1.0の範囲で変更できます。</p>
                     </div>
                     <label class="native-color-field" for="nativeColorInput">
                       <span>カラーピッカー</span>
@@ -204,9 +204,9 @@
                     </div>
                     <div class="rgb-control-row">
                       <label class="rgb-channel-label rgb-channel-label--alpha" for="alphaRange">A</label>
-                      <input id="alphaRange" class="rgb-range" type="range" min="0" max="255" step="1" value="255" aria-label="アルファ値をスライダーで調整。0は完全透明、255は不透明" />
+                      <input id="alphaRange" class="rgb-range" type="range" min="0" max="1" step="0.001" value="1.0" aria-label="アルファ値をスライダーで調整。0.0は完全透明、1.0は完全不透明" />
                       <label class="visually-hidden-label" for="alphaNumber">アルファ値</label>
-                      <input id="alphaNumber" class="rgb-number" type="number" min="0" max="255" step="1" value="255" inputmode="numeric" aria-label="アルファ値を数値で調整。0は完全透明、255は不透明" />
+                      <input id="alphaNumber" class="rgb-number" type="number" min="0" max="1" step="0.001" value="1.0" inputmode="decimal" aria-label="アルファ値を数値で調整。0.0は完全透明、1.0は完全不透明" />
                     </div>
                   </div>
 

@@ -8,12 +8,13 @@
   const MAGNIFIER_OFFSET = 20;
   const VIEWPORT_MARGIN = 12;
   const COPY_FEEDBACK_DURATION = 1800;
+  const ALPHA_DECIMAL_PLACES = 3;
 
   const state = {
     imageLoaded: false,
     canvasDrawn: false,
     sampledColor: null,
-    selectedColor: createColor(0, 0, 0, 255),
+    selectedColor: createColor(0, 0, 0, 1),
     colorHistory: [],
     loadId: 0,
     dragDepth: 0,
@@ -110,8 +111,22 @@
     };
   }
 
-  function formatAlpha(alphaByte) {
-    return Number((alphaByte / 255).toFixed(3)).toString();
+  // AlphaはRGBA表示と入力欄で共通利用できるよう、0～1の小数として保持する。
+  function normalizeAlphaValue(value) {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) {
+      return 0;
+    }
+    return Number(Math.min(1, Math.max(0, numericValue)).toFixed(ALPHA_DECIMAL_PLACES));
+  }
+
+  function formatAlpha(alpha) {
+    return normalizeAlphaValue(alpha).toString();
+  }
+
+  function formatAlphaControl(alpha) {
+    const formatted = formatAlpha(alpha);
+    return formatted.includes(".") ? formatted : `${formatted}.0`;
   }
 
   function normalizeRgbValue(value) {
@@ -122,11 +137,11 @@
     return Math.min(255, Math.max(0, Math.round(numericValue)));
   }
 
-  function createColor(red, green, blue, alphaByte) {
+  function createColor(red, green, blue, alphaValue) {
     const normalizedRed = normalizeRgbValue(red);
     const normalizedGreen = normalizeRgbValue(green);
     const normalizedBlue = normalizeRgbValue(blue);
-    const normalizedAlpha = normalizeRgbValue(alphaByte);
+    const normalizedAlpha = normalizeAlphaValue(alphaValue);
     const alpha = formatAlpha(normalizedAlpha);
     const hsl = rgbToHsl(normalizedRed, normalizedGreen, normalizedBlue);
 
@@ -188,14 +203,15 @@
 
   function syncColorControls(color) {
     Object.entries(elements.colorControls).forEach(([channel, controls]) => {
-      controls.range.value = String(color[channel]);
-      controls.number.value = String(color[channel]);
+      const value = channel === "a" ? formatAlphaControl(color.a) : String(color[channel]);
+      controls.range.value = value;
+      controls.number.value = value;
     });
     elements.nativeColorInput.value = color.hex.toLowerCase();
   }
 
   function updateColorDisplay() {
-    const color = state.selectedColor || createColor(0, 0, 0, 255);
+    const color = state.selectedColor || createColor(0, 0, 0, 1);
     const values = {
       hex: elements.hexValue,
       rgb: elements.rgbValue,
@@ -212,7 +228,7 @@
     });
 
     elements.colorPreview.style.backgroundColor = color.rgba;
-    elements.colorPreviewLabel.textContent = `${color.hex} / Alpha ${color.alpha}`;
+    elements.colorPreviewLabel.textContent = `${color.hex} / Alpha ${formatAlphaControl(color.a)}`;
     elements.colorPreview.setAttribute("aria-label", `選択色 ${color.hex}、${color.rgba}`);
     elements.restoreSampledColorButton.disabled = !state.sampledColor;
     syncColorControls(color);
@@ -229,7 +245,7 @@
       button.style.setProperty("--history-color", color.rgba);
       button.title = `${color.hex} / ${color.rgba}`;
       button.setAttribute("aria-label", `${color.hex}、${color.rgba}を再選択`);
-      label.textContent = color.a === 255 ? color.hex : `${color.hex} / ${color.alpha}`;
+      label.textContent = color.a === 1 ? color.hex : `${color.hex} / ${formatAlphaControl(color.a)}`;
       button.append(label);
       button.addEventListener("click", () => {
         applySelectedColor(color, { addToHistory: true });
@@ -253,8 +269,8 @@
   // 選択色の状態・表示・全入力を一度に同期し、必要な場合だけ履歴や取得元を更新する。
   function applySelectedColor(color, options = {}) {
     const numericAlpha = Number(color.a);
-    const alphaByte = Number.isFinite(numericAlpha) ? numericAlpha : 255;
-    const nextColor = createColor(color.r, color.g, color.b, alphaByte);
+    const alpha = Number.isFinite(numericAlpha) ? numericAlpha : 1;
+    const nextColor = createColor(color.r, color.g, color.b, alpha);
     state.selectedColor = nextColor;
 
     if (options.updateSampledColor) {
@@ -270,7 +286,7 @@
 
   function resetSelection() {
     state.sampledColor = null;
-    state.selectedColor = createColor(0, 0, 0, 255);
+    state.selectedColor = createColor(0, 0, 0, 1);
     state.colorHistory = [];
     resetCopyFeedback();
     updateColorDisplay();
@@ -278,7 +294,7 @@
   }
 
   function updateColorChannel(channel, value) {
-    const currentColor = state.selectedColor || createColor(0, 0, 0, 255);
+    const currentColor = state.selectedColor || createColor(0, 0, 0, 1);
     applySelectedColor({
       r: channel === "r" ? value : currentColor.r,
       g: channel === "g" ? value : currentColor.g,
@@ -299,10 +315,10 @@
   }
 
   function normalizeColorNumberInput(channel, input) {
-    const currentColor = state.selectedColor || createColor(0, 0, 0, 255);
+    const currentColor = state.selectedColor || createColor(0, 0, 0, 1);
     const numericValue = input.value.trim() === "" ? Number.NaN : Number(input.value);
     const normalizedValue = Number.isFinite(numericValue)
-      ? normalizeRgbValue(numericValue)
+      ? (channel === "a" ? normalizeAlphaValue(numericValue) : normalizeRgbValue(numericValue))
       : currentColor[channel];
     updateColorChannel(channel, normalizedValue);
   }
@@ -310,12 +326,12 @@
   function handleNativeColorInput() {
     const match = /^#([0-9a-f]{6})$/i.exec(elements.nativeColorInput.value);
     if (!match) {
-      syncColorControls(state.selectedColor || createColor(0, 0, 0, 255));
+      syncColorControls(state.selectedColor || createColor(0, 0, 0, 1));
       return;
     }
 
     const hex = match[1];
-    const currentColor = state.selectedColor || createColor(0, 0, 0, 255);
+    const currentColor = state.selectedColor || createColor(0, 0, 0, 1);
     applySelectedColor({
       r: parseInt(hex.slice(0, 2), 16),
       g: parseInt(hex.slice(2, 4), 16),
@@ -486,7 +502,7 @@
       return;
     }
 
-    const color = createColor(pixel[0], pixel[1], pixel[2], pixel[3]);
+    const color = createColor(pixel[0], pixel[1], pixel[2], pixel[3] / 255);
     applySelectedColor(color, { addToHistory: true, updateSampledColor: true });
     showMessage("success", `${color.hex}を取得しました（X: ${point.x}, Y: ${point.y}）。`);
 
