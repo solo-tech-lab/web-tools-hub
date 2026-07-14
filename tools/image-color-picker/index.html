@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>画像カラーピッカー | Webツール集</title>
+  <meta
+    name="description"
+    content="画像内をクリックまたはタップして、HEX・RGB・RGBA・HSLのカラーコードを取得できるツールです。"
+  />
+  <script>
+    (function () {
+      var key = "web-tools-hub-theme";
+      var savedTheme = localStorage.getItem(key);
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../../css/style.css" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="site-wrapper">
+    <header class="tool-page-header">
+      <div class="container">
+        <div class="header-top-row">
+          <a class="back-link" href="../../index.html">← トップへ戻る</a>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-label="ライト/ダークモードを切り替える"
+            aria-pressed="false"
+          >
+            <span class="theme-toggle-text">Light</span>
+            <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+            <span class="theme-toggle-text">Dark</span>
+          </button>
+        </div>
+        <p class="hero-eyebrow">Image Color Picker</p>
+        <h1 class="page-title">画像カラーピッカー</h1>
+        <p class="page-description">
+          画像内の調べたい位置をクリックまたはタップして、ピクセルの色をカラーコードで確認できます。
+        </p>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <section class="formatter-section image-color-picker-section">
+        <div class="container">
+          <p class="privacy-notice">
+            <span aria-hidden="true">🔒</span>
+            画像はブラウザ内で処理され、サーバーには送信されません。
+          </p>
+
+          <section class="panel upload-panel" aria-labelledby="uploadTitle">
+            <div class="panel-header">
+              <h2 id="uploadTitle" class="panel-title">画像を読み込む</h2>
+            </div>
+            <div class="panel-body">
+              <input
+                id="imageFileInput"
+                class="visually-hidden-file-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+                aria-label="画像ファイルを選択"
+              />
+              <div
+                id="dropZone"
+                class="image-drop-zone"
+                role="button"
+                tabindex="0"
+                aria-controls="imageFileInput"
+                aria-describedby="dropZoneHelp"
+              >
+                <span class="drop-zone-icon" aria-hidden="true">＋</span>
+                <span class="drop-zone-title">画像を選択、またはドラッグ＆ドロップ</span>
+                <span id="dropZoneHelp" class="drop-zone-help">PNG・JPEG・WebPに対応しています</span>
+                <span class="drop-zone-button" aria-hidden="true">ファイルを選択</span>
+              </div>
+              <p class="selected-file-name">選択中: <span id="selectedFileName">未選択</span></p>
+
+              <section class="sample-images-section" aria-labelledby="sampleImagesTitle">
+                <div class="sample-images-header">
+                  <h3 id="sampleImagesTitle" class="sample-images-title">サンプル画像で試す</h3>
+                  <span class="sample-images-note">クリックしてすぐに読み込めます</span>
+                </div>
+                <div class="sample-images-grid">
+                  <button
+                    class="sample-image-button"
+                    type="button"
+                    data-sample-path="./samples/color-palette.png"
+                    data-sample-name="カラーパレット"
+                    data-sample-key="palette"
+                    aria-label="サンプル画像のカラーパレットを読み込む"
+                  >
+                    <span class="sample-thumbnail">
+                      <img src="./samples/color-palette.png" alt="" width="720" height="480" />
+                    </span>
+                    <span>カラーパレット</span>
+                  </button>
+                  <button
+                    class="sample-image-button"
+                    type="button"
+                    data-sample-path="./samples/gradient-sample.png"
+                    data-sample-name="グラデーション"
+                    data-sample-key="gradient"
+                    aria-label="サンプル画像のグラデーションを読み込む"
+                  >
+                    <span class="sample-thumbnail">
+                      <img src="./samples/gradient-sample.png" alt="" width="720" height="480" />
+                    </span>
+                    <span>グラデーション</span>
+                  </button>
+                  <button
+                    class="sample-image-button"
+                    type="button"
+                    data-sample-path="./samples/transparency-sample.png"
+                    data-sample-name="透明度サンプル"
+                    data-sample-key="transparency"
+                    aria-label="サンプル画像の透明度サンプルを読み込む"
+                  >
+                    <span class="sample-thumbnail sample-thumbnail--checker">
+                      <img src="./samples/transparency-sample.png" alt="" width="750" height="360" />
+                    </span>
+                    <span>透明度サンプル</span>
+                  </button>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <div class="color-picker-layout">
+            <section class="panel image-panel" aria-labelledby="imagePanelTitle">
+              <div class="panel-header">
+                <h2 id="imagePanelTitle" class="panel-title">画像プレビュー</h2>
+              </div>
+              <div class="panel-body image-panel-body">
+                <div id="canvasShell" class="image-canvas-shell">
+                  <p id="canvasEmptyState" class="canvas-empty-state">
+                    画像を読み込むと、ここに表示されます。
+                  </p>
+                  <div id="canvasStage" class="image-canvas-stage" hidden>
+                    <canvas
+                      id="imageCanvas"
+                      width="1"
+                      height="1"
+                      aria-label="読み込んだ画像。クリックまたはタップして色を取得できます"
+                    ></canvas>
+                  </div>
+                </div>
+                <p class="canvas-help">画像上でポインターを動かすと拡大ルーペを表示します。</p>
+              </div>
+            </section>
+
+            <section class="panel color-info-panel" aria-labelledby="colorInfoTitle">
+              <div class="panel-header">
+                <h2 id="colorInfoTitle" class="panel-title">選択した色</h2>
+              </div>
+              <div class="panel-body">
+                <div class="color-preview-checker">
+                  <div
+                    id="colorPreview"
+                    class="color-preview"
+                    role="img"
+                    aria-label="選択色 #000000、rgba(0, 0, 0, 1)"
+                  >
+                    <span id="colorPreviewLabel" class="color-preview-label">#000000 / Alpha 1</span>
+                  </div>
+                </div>
+
+                <section class="rgb-adjustment-section" aria-labelledby="rgbAdjustmentTitle">
+                  <div class="rgb-adjustment-header">
+                    <div>
+                      <h3 id="rgbAdjustmentTitle" class="rgb-adjustment-title">RGBAで色を調整</h3>
+                      <p class="rgb-adjustment-note">RGBと透明度を0～255の範囲で変更できます。</p>
+                    </div>
+                    <label class="native-color-field" for="nativeColorInput">
+                      <span>カラーピッカー</span>
+                      <input id="nativeColorInput" type="color" value="#000000" aria-label="標準カラーピッカーでRGBを調整" />
+                    </label>
+                  </div>
+
+                  <div class="rgb-controls">
+                    <div class="rgb-control-row">
+                      <label class="rgb-channel-label rgb-channel-label--red" for="redRange">R</label>
+                      <input id="redRange" class="rgb-range" type="range" min="0" max="255" step="1" value="0" aria-label="赤の値をスライダーで調整" />
+                      <label class="visually-hidden-label" for="redNumber">赤の数値</label>
+                      <input id="redNumber" class="rgb-number" type="number" min="0" max="255" step="1" value="0" inputmode="numeric" aria-label="赤の値を数値で調整" />
+                    </div>
+                    <div class="rgb-control-row">
+                      <label class="rgb-channel-label rgb-channel-label--green" for="greenRange">G</label>
+                      <input id="greenRange" class="rgb-range" type="range" min="0" max="255" step="1" value="0" aria-label="緑の値をスライダーで調整" />
+                      <label class="visually-hidden-label" for="greenNumber">緑の数値</label>
+                      <input id="greenNumber" class="rgb-number" type="number" min="0" max="255" step="1" value="0" inputmode="numeric" aria-label="緑の値を数値で調整" />
+                    </div>
+                    <div class="rgb-control-row">
+                      <label class="rgb-channel-label rgb-channel-label--blue" for="blueRange">B</label>
+                      <input id="blueRange" class="rgb-range" type="range" min="0" max="255" step="1" value="0" aria-label="青の値をスライダーで調整" />
+                      <label class="visually-hidden-label" for="blueNumber">青の数値</label>
+                      <input id="blueNumber" class="rgb-number" type="number" min="0" max="255" step="1" value="0" inputmode="numeric" aria-label="青の値を数値で調整" />
+                    </div>
+                    <div class="rgb-control-row">
+                      <label class="rgb-channel-label rgb-channel-label--alpha" for="alphaRange">A</label>
+                      <input id="alphaRange" class="rgb-range" type="range" min="0" max="255" step="1" value="255" aria-label="アルファ値をスライダーで調整。0は完全透明、255は不透明" />
+                      <label class="visually-hidden-label" for="alphaNumber">アルファ値</label>
+                      <input id="alphaNumber" class="rgb-number" type="number" min="0" max="255" step="1" value="255" inputmode="numeric" aria-label="アルファ値を数値で調整。0は完全透明、255は不透明" />
+                    </div>
+                  </div>
+
+                  <div class="rgb-adjustment-actions">
+                    <button id="addHistoryButton" class="primary-button" type="button" aria-label="現在調整している色を取得履歴へ追加">履歴に追加</button>
+                    <button id="restoreSampledColorButton" class="secondary-button" type="button" disabled aria-label="色調整前の画像から取得した色に戻す">元の取得色に戻す</button>
+                  </div>
+                </section>
+
+                <dl class="color-code-list">
+                  <div class="color-code-row">
+                    <dt>HEX</dt>
+                    <dd><code id="hexValue">#000000</code></dd>
+                    <button class="secondary-button color-copy-button" type="button" data-copy-format="hex" aria-label="HEXをコピー">コピー</button>
+                  </div>
+                  <div class="color-code-row">
+                    <dt>RGB</dt>
+                    <dd><code id="rgbValue">rgb(0, 0, 0)</code></dd>
+                    <button class="secondary-button color-copy-button" type="button" data-copy-format="rgb" aria-label="RGBをコピー">コピー</button>
+                  </div>
+                  <div class="color-code-row">
+                    <dt>RGBA</dt>
+                    <dd><code id="rgbaValue">rgba(0, 0, 0, 1)</code></dd>
+                    <button class="secondary-button color-copy-button" type="button" data-copy-format="rgba" aria-label="RGBAをコピー">コピー</button>
+                  </div>
+                  <div class="color-code-row">
+                    <dt>HSL</dt>
+                    <dd><code id="hslValue">hsl(0, 0%, 0%)</code></dd>
+                    <button class="secondary-button color-copy-button" type="button" data-copy-format="hsl" aria-label="HSLをコピー">コピー</button>
+                  </div>
+                </dl>
+
+                <section class="color-history-section" aria-labelledby="historyTitle">
+                  <div class="color-history-header">
+                    <h3 id="historyTitle" class="color-history-title">取得履歴</h3>
+                    <span class="color-history-limit">最大8件</span>
+                  </div>
+                  <p id="historyEmptyState" class="history-empty-state">まだ取得履歴はありません。</p>
+                  <div id="colorHistory" class="color-history" aria-label="取得した色の履歴"></div>
+                </section>
+
+                <div class="image-reset-actions">
+                  <button id="chooseAnotherButton" class="primary-button" type="button" disabled aria-label="別の画像を選択">別の画像を選択</button>
+                  <button id="removeImageButton" class="secondary-button" type="button" disabled aria-label="読み込んだ画像を削除">画像を削除</button>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div id="messageArea" class="message-area" aria-live="polite" aria-atomic="true">
+            <div id="messageBox" class="message-box" hidden></div>
+          </div>
+
+          <section class="tips-card">
+            <h2 class="tips-title">使い方</h2>
+            <ol class="tips-list">
+              <li>画像を選択するか、アップロードエリアへドラッグ＆ドロップします。</li>
+              <li>画像内の色を調べたい場所をクリックまたはタップします。</li>
+              <li>表示されたHEX、RGB、RGBA、HSLをコピーします。</li>
+            </ol>
+          </section>
+
+          <section class="tips-card">
+            <h2 class="tips-title">注意事項</h2>
+            <ul class="tips-list">
+              <li>画像はブラウザ内で処理され、外部へ送信されません。</li>
+              <li>端末や画像のカラープロファイルによって、表示色に差が出る場合があります。</li>
+              <li>非常に大きな画像では、端末の性能によって読み込みに時間がかかる場合があります。</li>
+            </ul>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <canvas id="magnifierCanvas" class="magnifier-canvas" width="150" height="150" aria-hidden="true" hidden></canvas>
+
+  <script src="../../js/theme-toggle.js"></script>
+  <script src="./main.js"></script>
+</body>
+</html>
